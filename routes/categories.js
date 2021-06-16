@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+const categorySchema = require("../schemas/categorySchema");
 
 router.use(express.json());
 
@@ -21,13 +22,6 @@ router.get("/all", async (req, res) =>
 });
 
 
-const categorySchema = new mongoose.Schema({
-    name: {type:String},
-    image: String,
-});
 const Category = mongoose.model("Category", categorySchema,"categories");
-
-
-
 
 module.exports = router;

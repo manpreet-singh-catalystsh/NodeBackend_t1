@@ -13,4 +13,5 @@ const userSchema = new mongoose.Schema({
     superAdmin: {type:Boolean,default:true},
 });
 
+
 module.exports = userSchema;

@@ -2,8 +2,8 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
-const authToken = require("./webToken");
-const userSchema = require("../Schemas/userSchema");
+const authToken = require("../controllers/webToken");
+const userSchema = require("../schemas/userSchema");
 
 router.use(express.json());
 

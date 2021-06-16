@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+const activitySchema = require("../schemas/activitiesSchema");
 
 router.use(express.json());
 
@@ -41,16 +42,7 @@ router.get("/Url/:activityName", async (req, res) =>
 });
 
 
-
-const activitySchema = new mongoose.Schema({
-    name: {type:String},
-    category:String,
-    image : String,
-    collections: Number,
-});
 const Activity = mongoose.model("Activity", activitySchema,"activities");
-
-
 
 
 module.exports = router;

@@ -2,8 +2,9 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
-const activitySchema = require("../Schemas/activitiesSchema");
-const userSchema  = require("../Schemas/userSchema");
+const activitySchema = require("../schemas/activitiesSchema");
+const userSchema  = require("../schemas/userSchema");
+const transactionSchema = require("../schemas/transactionSchema");
 
 router.use(express.json());
 
@@ -128,16 +129,6 @@ router.get("/all", async (req, res) =>
 
 });
 
-
-
-
-const transactionSchema = new mongoose.Schema({
-    from: String,
-    to: String,
-    purpose: String,
-    activityName: String,
-    amount: Number,
-},{ timestamps: true });
 
 const Transaction = mongoose.model("Transaction", transactionSchema,"transactions");
 
