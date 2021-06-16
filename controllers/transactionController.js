@@ -1,22 +1,25 @@
 const Transaction = require("../schemas/transactionSchema");
 const Activity = require("../schemas/activitiesSchema");
 const User  = require("../schemas/userSchema");
+const transactionServices = require("../services/transactionServices");
+const userServices = require("../services/userServices");
+const activityServices = require("../services/activityServices");
 
 async function showUserTransactions(req,res)
 {
-    var transactions = await Transaction.find().or([{to:req.params.userName},{from:req.params.userName}]);
-     res.send(transactions);
+    var transactions = await transactionServices.showUserTransactions(req.params.userName);
+    res.send(transactions);
 }
 
 async function showAdminTransactions(req,res)
 {
-    var transactions = await Transaction.find ({to:req.params.userName});
+    var transactions = await transactionServices.showUserTransactions(req.params.userName);
      res.send(transactions);
 }
 
 async function showAll(req,res)
 {
-    var transactions = await Transaction.find ();
+    var transactions = await transactionServices.showAll();
      res.send(transactions);
 }
 
@@ -26,11 +29,9 @@ async function superAdminTransaction(req,res)
     [to,from,amount,activityName,purpose]=[req.body.to,req.body.from,req.body.amount,req.body.activityName,req.body.purpose];
      try
      {
-        var _user = await User.findOne({userName:to});
-        _user.money+=amount;
-        _user.save();
-        const transaction = new Transaction({ to: to, from:from, amount:amount,activityName:activityName,purpose:purpose }); 
-        const result = await transaction.save();
+        await userServices.addAmount(to,amount);
+   
+        const result = await transactionServices.makeTransaction(to,from, amount,activityName,purpose); 
         console.log(result);
         res.send(result);   
     }
@@ -40,41 +41,31 @@ async function superAdminTransaction(req,res)
 
 async function userTransaction(req,res)
 {
-    console.log("request to make transaction recieved!!!!");
     [to,from,amount,activityName,purpose]=[req.body.to,req.body.from,req.body.amount,req.body.activityName,req.body.purpose];
   
     try
     {
                
-        var _user = await User.findOne({userName:from});
-        if(_user.money<amount)
+        var balance = await userServices.getBalance(from);
+        if(balance<amount)
         {
             res.send("409")
             return;
         }
-        _user.money-=amount;
-        _user.save();
-        _user = await User.findOne({userName:to});
+       await userServices.deductAmount(from,amount);
         if(activityName=="")
         {
-            _user.superAdminMoney+=amount;
-            _user.save();
+            await userServices.addAmount(to,amount,"superAdmin");
         }
-
         else
         {
-            _user.adminMoney+=amount;
-            _user.save();
-            console.log(activityName);
-            var _activity  = await Activity.findOne({name:activityName});
-            _activity.collections+=amount;
-            _activity.save();
+            await userServices.addAmount(to,amount,"admin");
+            await activityServices.updateActivityCollection(activityName,amount);
         }
 
-    const transaction = new Transaction({ to: to, from:from, amount:amount,activityName:activityName,purpose:purpose }); 
-    const result = await transaction.save();
-    console.log(result);
-    res.send(result);   }
+        const result = await transactionServices.makeTransaction(to,from, amount,activityName,purpose); 
+        console.log(result);
+        res.send(result);     }
      catch(e){console.log("some error occured!!!",e);
     res.send("409")}
 }

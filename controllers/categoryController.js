@@ -1,8 +1,8 @@
-const Category  = require("../schemas/categorySchema");
+const categoryServices  = require("../services/categoryServices");
 
 async function showAll(req,res)
 {
-    var categories = await Category.find();
+    var categories = await categoryServices.categoriesList();
     res.send(categories);
 }
 

@@ -1,11 +1,10 @@
 const authToken = require("../controllers/webToken");
-const User = require("../schemas/userSchema");
+const userServices = require("../services/userServices");
 
 async function getType(req,res)
 {
-    var currentUser = await User.findOne({userName:req.params.userName});
-    console.log(currentUser);
-    if(currentUser.length!=0)
+    var currentUser = await userServices.getType(req.params.userName);
+    if(currentUser)
         res.send({"admin":currentUser.admin,"superAdmin":currentUser.superAdmin});
     else
         res.send("404");
@@ -13,10 +12,10 @@ async function getType(req,res)
 
 async function getAdminCollection(req,res)
 {
-    var currentUser = await User.findOne({userName:req.params.userName});   
-    if(currentUser)
+    var adminCollection = await userServices.getAdminCollection(req.params.userName);   
+    if(adminCollection)
     {
-       res.send({"money":currentUser.adminMoney});   
+       res.send({"money":adminCollection});   
     }
     else
         res.send("404");
@@ -24,11 +23,10 @@ async function getAdminCollection(req,res)
 
 async function getBalance(req,res)
 {
-    var currentUser = await User.findOne({userName:req.params.userName});   
-    if(currentUser)
+    var balance = await userServices.getBalance(req.params.userName);   
+    if(balance)
     {
-       res.send({"money":currentUser.money});
-    
+       res.send({"money":balance});
     }
     else
         res.send("404");
@@ -36,11 +34,10 @@ async function getBalance(req,res)
 
 async function getAssociatedActivity(req,res)
 {
-    currentUser = await User.findOne({userName:req.params.userName});   
-    if(currentUser)
+    activity = await userServices.getAssociatedActivity(req.params.userName);   
+    if(activity)
     {
-       res.send({"activityName":currentUser.activityName});
-        console.log(currentUser.activityName);    
+       res.send({"activityName":activity});
     }
     else
         res.send("404");
@@ -53,25 +50,22 @@ async function signup(req,res)
     [userName,password,privicyCheck,promotionCheck,admin,superAdmin] = [req.body.userName,req.body.password,req.body.privicyCheck,req.body.promotionCheck,req.body.admin,req.body.superAdmin];
      try
      {
-        currentUser = await User.findOne({userName:userName});
+        currentUser = await userServices.userExists(userName);
         if(!currentUser)
-            {rslt = await createUser(userName,password,privicyCheck,promotionCheck,admin,superAdmin);
-            console.log(rslt);
-              console.log(authToken);  
-            res.send(authToken(rslt.id,rslt.userName));
+            {
+                rslt = await userServices.createUser(userName,password,privicyCheck,promotionCheck,admin,superAdmin); 
+                res.send(authToken(rslt.id,rslt.userName));
             }
         else
             {
-                currentUser = await User.findOne({userName:userName,password:password});
+                currentUser = await userServices.verifyPassword(userName,password);
                 if(!currentUser)
                 {
                     res.send("102");  //invalid password!!!!
                 }
                 else
                 {
-                    currentUser.privicyCheck=privicyCheck==="true";
-                    currentUser.promotionCheck=promotionCheck==="true";
-                    currentUser.save();
+                   await userServices.updateChecks(userName,privicyCheck,promotionCheck);
                     res.send(authToken(currentUser.id,currentUser.userName));   // login
                 }
                 console.log("old user");
@@ -80,13 +74,6 @@ async function signup(req,res)
      catch(e){console.log("some error occured!!!",e);}
 }
 
-async function createUser(userName,password,privicyCheck,promotionCheck,admin,superAdmin)
-{
-    const user = new User({ userName: userName, password: password, privicyCheck: (privicyCheck === "true"), promotionCheck: promotionCheck === "true" ,admin:(admin === "true"),superAdmin:(superAdmin === "true"),}) 
-    const result = await user.save();
-    console.log("username : " + userName + "\npassword: " + password);
-    return result;
-}
 
 module.exports.getType = getType;
 module.exports.signup = signup;
