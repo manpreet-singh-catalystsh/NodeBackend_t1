@@ -1,136 +1,45 @@
 
 const express = require("express");
 const router = express.Router();
-const mongoose = require("mongoose");
-const activitySchema = require("../schemas/activitiesSchema");
-const userSchema  = require("../schemas/userSchema");
-const transactionSchema = require("../schemas/transactionSchema");
+const Transaction = require("../schemas/transactionSchema");
+const transactionController = require("../controllers/transactionController");
 
 router.use(express.json());
 
-router.get("/", async(req, res) => {
-    console.log("transactions request recieved!!!!");
-    res.send("Hwllo World!!");   
+
+router.get("/user/:userName", (req, res) => {
+  transactionController.showUserTransactions(req,res);
 });
 
-
-router.get("/user/:userName", async (req, res) => {
-    transactions = await Transaction.find().or ([{to:req.params.userName},{from:req.params.userName}]);
-   // console.log(currentUser);
-    res.send(transactions);
+router.get("/admin/:userName", (req, res) => {
+    transactionController.showAdminTransactions(req,res);
 });
 
-router.get("/admin/:userName", async (req, res) => {
-    transactions = await Transaction.find ({to:req.params.userName});
-    //console.log(currentUser);
-    res.send(transactions);
-});
-
-router.post("/makeTransaction", async(req,res)=>
+router.post("/makeTransaction",(req,res)=>
 {
-    console.log("request to make transaction recieved!!!!");
-    
-    var to = req.body.to;
-    var from = req.body.from;
-    var amount = req.body.amount;
-    var activityName = req.body.activityName;
-    var purpose = req.body.purpose;
-     try
-     {
-        var tmp1 = mongoose.model('tmp1', userSchema,"users");
-        var _user = await tmp1.find({userName:to});
-        _user=_user[0];
-        _user.money+=amount;
-        _user.save();
-
-
-        const transaction = new Transaction({ to: to, from:from, amount:amount,activityName:activityName,purpose:purpose }); 
-        const result = await transaction.save();
-        console.log(result);
-        res.send(result);   
-    }
-     catch(e){console.log("some error occured!!!",e);}
+ transactionController.superAdminTransaction(req,res);
 });
 
 
 
-router.post("/makeUserTransaction", async(req,res)=>
+router.post("/makeUserTransaction",(req,res)=>
 {
-    console.log("request to make transaction recieved!!!!");
-    
-    var to = req.body.to;
-    var from = req.body.from;
-    var amount = req.body.amount;
-    var activityName = req.body.activityName;
-    var purpose = req.body.purpose;
-    try
-    {
-        var tmp1 = mongoose.model('tmp1', userSchema,"users");
-        var tmp2 = mongoose.model('tmp2', activitySchema,"activities");        
-        var _user = await tmp1.find({userName:from});
-        _user=_user[0];
-        console.log(_user);
+   transactionController.userTransaction(req,res);
 
-        if(_user.money<amount)
-        {
-            res.send("409")
-            return;
-        }
-        _user.money-=amount;
-        _user.save();
-        _user = await tmp1.find({userName:to});
-        _user=_user[0];
-        if(activityName=="")
-        {
-            _user.superAdminMoney+=amount;
-            _user.save();
-        }
-
-        else
-        {
-            _user.adminMoney+=amount;
-            _user.save();
-            console.log(activityName);
-            var _activity  = await tmp2.find({name:activityName});
-            _activity[0].collections+=amount;
-            _activity[0].save();
-        }
-
-    const transaction = new Transaction({ to: to, from:from, amount:amount,activityName:activityName,purpose:purpose }); 
-    const result = await transaction.save();
-    console.log(result);
-    res.send(result);   
-
+});
 /*
-        const transaction = new Transaction({ to: to, from:from, amount:amount,activityName:activityName,purpose:purpose }); 
-        const result = await transaction.save();
-        console.log(result);
-        res.send(result);   */
-    }
-     catch(e){console.log("some error occured!!!",e);
-    res.send("409")}
-
-
-});
-
 // testing purpose only
 router.get("/addDummyTransaction", async(req, res) => {
     console.log("transactions request recieved!!!!"); 
     const transaction = new Transaction({ to: "+390123456789", from:"+391234567890", amount:20,activityName:"",purpose:"printingMoney" }); 
     const result = await transaction.save();
     res.send(result);   
-});
+});*/
 
 router.get("/all", async (req, res) => 
 {
-    console.log("all transactions requested!!!!");
-    transactions = await Transaction.find();
-    res.send(transactions);
-
+   transactionController.showAll(req,res);
 });
-
-
-const Transaction = mongoose.model("Transaction", transactionSchema,"transactions");
 
 
 

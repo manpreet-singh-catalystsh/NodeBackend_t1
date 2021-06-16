@@ -5,5 +5,5 @@ const activitySchema = new mongoose.Schema({
     image : String,
     collections: Number,
 });
-
-module.exports = activitySchema;
+const Activity = mongoose.model("Activity", activitySchema,"activities");
+module.exports = Activity;

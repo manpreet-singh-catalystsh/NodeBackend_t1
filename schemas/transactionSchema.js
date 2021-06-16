@@ -8,5 +8,5 @@ const transactionSchema = new mongoose.Schema({
     amount: Number,
 },{ timestamps: true });
 
-
-module.exports = transactionSchema;
+const Transaction = mongoose.model("Transaction", transactionSchema,"transactions");
+module.exports = Transaction;
