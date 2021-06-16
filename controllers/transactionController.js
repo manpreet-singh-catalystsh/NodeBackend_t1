@@ -4,7 +4,7 @@ const User  = require("../schemas/userSchema");
 
 async function showUserTransactions(req,res)
 {
-    var transactions = await Transaction.find().or ([{to:req.params.userName},{from:req.params.userName}]);
+    var transactions = await Transaction.find().or([{to:req.params.userName},{from:req.params.userName}]);
      res.send(transactions);
 }
 
@@ -26,13 +26,9 @@ async function superAdminTransaction(req,res)
     [to,from,amount,activityName,purpose]=[req.body.to,req.body.from,req.body.amount,req.body.activityName,req.body.purpose];
      try
      {
-        var tmp1 = User;
-        var _user = await tmp1.find({userName:to});
-        _user=_user[0];
+        var _user = await User.findOne({userName:to});
         _user.money+=amount;
         _user.save();
-
-
         const transaction = new Transaction({ to: to, from:from, amount:amount,activityName:activityName,purpose:purpose }); 
         const result = await transaction.save();
         console.log(result);
@@ -49,12 +45,8 @@ async function userTransaction(req,res)
   
     try
     {
-        var tmp1 = User;
-        var tmp2 = Activity;       
-        var _user = await tmp1.find({userName:from});
-        _user=_user[0];
-        console.log(_user);
-
+               
+        var _user = await User.findOne({userName:from});
         if(_user.money<amount)
         {
             res.send("409")
@@ -62,8 +54,7 @@ async function userTransaction(req,res)
         }
         _user.money-=amount;
         _user.save();
-        _user = await tmp1.find({userName:to});
-        _user=_user[0];
+        _user = await User.findOne({userName:to});
         if(activityName=="")
         {
             _user.superAdminMoney+=amount;
@@ -75,9 +66,9 @@ async function userTransaction(req,res)
             _user.adminMoney+=amount;
             _user.save();
             console.log(activityName);
-            var _activity  = await tmp2.find({name:activityName});
-            _activity[0].collections+=amount;
-            _activity[0].save();
+            var _activity  = await Activity.findOne({name:activityName});
+            _activity.collections+=amount;
+            _activity.save();
         }
 
     const transaction = new Transaction({ to: to, from:from, amount:amount,activityName:activityName,purpose:purpose }); 

@@ -3,20 +3,20 @@ const User = require("../schemas/userSchema");
 
 async function getType(req,res)
 {
-    var currentUser = await User.find({userName:req.params.userName});
+    var currentUser = await User.findOne({userName:req.params.userName});
     console.log(currentUser);
     if(currentUser.length!=0)
-        res.send({"admin":currentUser[0].admin,"superAdmin":currentUser[0].superAdmin});
+        res.send({"admin":currentUser.admin,"superAdmin":currentUser.superAdmin});
     else
         res.send("404");
 }
 
 async function getAdminCollection(req,res)
 {
-    var currentUser = await User.find({userName:req.params.userName});   
-    if(currentUser.length!=0)
+    var currentUser = await User.findOne({userName:req.params.userName});   
+    if(currentUser)
     {
-       res.send({"money":currentUser[0].adminMoney});   
+       res.send({"money":currentUser.adminMoney});   
     }
     else
         res.send("404");
@@ -24,12 +24,11 @@ async function getAdminCollection(req,res)
 
 async function getBalance(req,res)
 {
-    var currentUser = await User.find({userName:req.params.userName});   
-    if(currentUser.length!=0)
+    var currentUser = await User.findOne({userName:req.params.userName});   
+    if(currentUser)
     {
-       res.send({"money":currentUser[0].money});
-        
-        console.log(currentUser[0].money);    
+       res.send({"money":currentUser.money});
+    
     }
     else
         res.send("404");
@@ -37,11 +36,11 @@ async function getBalance(req,res)
 
 async function getAssociatedActivity(req,res)
 {
-    currentUser = await User.find({userName:req.params.userName});   
-    if(currentUser.length!=0)
+    currentUser = await User.findOne({userName:req.params.userName});   
+    if(currentUser)
     {
-       res.send({"activityName":currentUser[0].activityName});
-        console.log(currentUser[0].activityName);    
+       res.send({"activityName":currentUser.activityName});
+        console.log(currentUser.activityName);    
     }
     else
         res.send("404");
@@ -51,18 +50,11 @@ async function getAssociatedActivity(req,res)
 async function signup(req,res)
 {
     console.log("post signup received!!");
-    var userName = req.body.userName;
-    var password = req.body.password;
-    var privicyCheck = req.body.privicyCheck;
-    var promotionCheck = req.body.promotionCheck;
-    var admin = req.body.admin;
-    var superAdmin = req.body.superAdmin;
-
+    [userName,password,privicyCheck,promotionCheck,admin,superAdmin] = [req.body.userName,req.body.password,req.body.privicyCheck,req.body.promotionCheck,req.body.admin,req.body.superAdmin];
      try
      {
-        currentUser = await User.find({userName:userName});
-        //console.log(currentUser);
-        if(currentUser.length===0)
+        currentUser = await User.findOne({userName:userName});
+        if(!currentUser)
             {rslt = await createUser(userName,password,privicyCheck,promotionCheck,admin,superAdmin);
             console.log(rslt);
               console.log(authToken);  
@@ -70,19 +62,17 @@ async function signup(req,res)
             }
         else
             {
-                currentUser = await User.find({userName:userName,password:password});
-                
-                if(currentUser.length===0)
+                currentUser = await User.findOne({userName:userName,password:password});
+                if(!currentUser)
                 {
                     res.send("102");  //invalid password!!!!
                 }
                 else
                 {
-                    currentUser[0].privicyCheck=privicyCheck==="true";
-                    currentUser[0].promotionCheck=promotionCheck==="true";
-                    currentUser[0].save();
-
-                    res.send(authToken(currentUser[0].id,currentUser[0].userName));   // login
+                    currentUser.privicyCheck=privicyCheck==="true";
+                    currentUser.promotionCheck=promotionCheck==="true";
+                    currentUser.save();
+                    res.send(authToken(currentUser.id,currentUser.userName));   // login
                 }
                 console.log("old user");
             }
@@ -97,7 +87,6 @@ async function createUser(userName,password,privicyCheck,promotionCheck,admin,su
     console.log("username : " + userName + "\npassword: " + password);
     return result;
 }
-
 
 module.exports.getType = getType;
 module.exports.signup = signup;
