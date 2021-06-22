@@ -2,8 +2,9 @@ const categoryServices  = require("../services/categoryServices");
 
 async function showAll(req,res)
 {
-    var categories = await categoryServices.categoriesList();
-    res.send(categories);
+    try{
+    res.send(await categoryServices.categoriesList());}
+    catch(e){}
 }
 
 module.exports = showAll;

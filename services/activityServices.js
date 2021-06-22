@@ -2,20 +2,17 @@ const Activity = require("../schemas/activitiesSchema");
 
 async function activityList()
 {
-    var activities = await Activity.find();
-    return(activities);
+    return(await Activity.find());
 }
 
 async function activityByCategory(category)
 {
-    var activities = await Activity.find({category:category});
-    return (activities);
+    return (await Activity.find({category:category}));
 }
 
 async function activityUrl(activityName)
 {
-    var activity = await Activity.findOne({name:activityName});
-    return(activity.image);
+    return(await Activity.findOne({name:activityName}).select("image"));
 }
 
 async function updateActivityCollection(activityName,amount)
@@ -26,7 +23,4 @@ async function updateActivityCollection(activityName,amount)
     return result;
 }
 
-module.exports.activityList = activityList;
-module.exports.activityByCategory = activityByCategory;
-module.exports.activityUrl = activityUrl;
-module.exports.updateActivityCollection=updateActivityCollection;
+module.exports = {activityList : activityList,activityByCategory : activityByCategory,activityUrl : activityUrl,updateActivityCollection : updateActivityCollection};

@@ -2,8 +2,7 @@ const Category  = require("../schemas/categorySchema");
 
 async function categoriesList()
 {
-    var categories = await Category.find();
-    return(categories);
+    return(await Category.find());
 }
 
-module.exports.categoriesList = categoriesList;
+module.exports = {categoriesList : categoriesList};
