@@ -6,8 +6,6 @@ function auth(req,res,next)
     if(!token) return res.status(401).send("No auth Token");
 
     try{
-    const decoded = jwt.verify(token,"jwtPvtKey");
-   // req.userName = decoded;
     next();
     }
     

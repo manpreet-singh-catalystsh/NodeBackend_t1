@@ -30,7 +30,7 @@ async function updateChecks(user, privicy, promotion) {
   currentUser = await User.findOne({ userName: user });
   currentUser.privicyCheck = privicy === "true";
   currentUser.promotionCheck = promotion === "true";
-  currentUser.save();
+  await currentUser.save();
   return;
 }
 
@@ -56,7 +56,7 @@ async function createUser(
 async function deductAmount(user, amount) {
   var _user = await User.findOne({ userName: user });
   _user.money -= amount;
-  _user.save();
+  await _user.save();
   return;
 }
 
@@ -65,7 +65,7 @@ async function addAmount(user, amount, type = "user") {
   if (type == "user") _user.money += amount;
   else if (type == "admin") _user.adminMoney += amount;
   else _user.superAdminmoney += amount;
-  _user.save();
+ await _user.save();
   return;
 }
 
