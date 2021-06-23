@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema({
     userName: {type:String,unique:true},
-    password: String,
+    password:  { type: String, required: true },
     privicyCheck: Boolean,
     promotionCheck: Boolean,
     activityName: String,
@@ -12,6 +13,15 @@ const userSchema = new mongoose.Schema({
     admin: {type:Boolean,default:false},
     superAdmin: {type:Boolean,default:true},
 });
+
+userSchema.statics.hashPassword = async function (password) {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    return hashedPassword;
+  };
+  userSchema.statics.comparePassword = async function (password, dbPassword) {
+    return bcrypt.compareSync(password, dbPassword);
+  };
+
 
 const User = mongoose.model("User", userSchema,"users");
 module.exports = User;

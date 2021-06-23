@@ -1,47 +1,50 @@
 const authToken = require("../controllers/webToken");
 const userServices = require("../services/userServices");
+const Response = require("../middleware/response");
+const Messages = require("../messages");
 
 async function getType(req, res) {
   try {
     var currentUser = await userServices.getType(req.params.userName);
     if (currentUser)
-      res.send({
-        admin: currentUser.admin,
-        superAdmin: currentUser.superAdmin,
-      });
-    res.send("404");
+   return res.send(new Response( Messages.success.code,Messages.success.description,  {
+      admin: currentUser.admin,
+      superAdmin: currentUser.superAdmin,
+    }));
+ 
+      res.send(new Response( Messages.fail.code,Messages.fail.description,""));
   } catch (e) {
-    res.send("404");
+    res.send(new Response( Messages.fail.code,Messages.fail.description,""));
   }
 }
 
 async function getAdminCollection(req, res) {
   try {
-    res.send({
-      money: await userServices.getAdminCollection(req.params.userName),
-    });
+    res.send(new Response( Messages.success.code,Messages.success.description,
+       await userServices.getAdminCollection(req.params.userName),
+    ));
   } catch (e) {
-    res.send("404");
+    res.send(new Response( Messages.fail.code,Messages.fail.description,""));
   }
 }
 
 async function getBalance(req, res) {
   try {
-    res.send({ money: await userServices.getBalance(req.params.userName) });
+    res.send(new Response( Messages.success.code,Messages.success.description, await userServices.getBalance(req.params.userName)));
   } catch (e) {
-    res.send("404");
+    res.send(new Response( Messages.fail.code,Messages.fail.description,""));
   }
 }
 
 async function getAssociatedActivity(req, res) {
   try {
-    res.send({
+    res.send(new Response( Messages.success.code,Messages.success.description, {
       activityName: await userServices.getAssociatedActivity(
         req.params.userName
       ),
-    });
+    }));
   } catch (e) {
-    res.send("404");
+    res.send(new Response( Messages.fail.code,Messages.fail.description,""));
   }
 }
 
@@ -62,16 +65,22 @@ async function signup(req, res) {
         admin,
         superAdmin
       );
-      res.send(authToken(rslt.id, rslt.userName));
+      var tkn= authToken(rslt.id, rslt.userName);
+      console.log(tkn);
+      return res.send(new Response( Messages.success.code,Messages.success.description, tkn ));
     }
 
     if (!await userServices.verifyPassword(userName, password)) {
-      res.send("102"); //invalid password!!!!
+     return  res.send(new Response( Messages.fail.code,Messages.fail.description,"")); //invalid password!!!!
     }
     await userServices.updateChecks(userName, privicyCheck, promotionCheck);
-    res.send(authToken(currentUser.id, currentUser.userName)); // login
+    tkn=authToken(currentUser.id, currentUser.userName);
+    console.log(tkn);
+    return res.send(new Response( Messages.success.code,Messages.success.description, tkn ));
+    // login
     console.log("old user");
   } catch (e) {
+    res.send(new Response( Messages.fail.code,Messages.fail.description,""));
     console.log("some error occured!!!", e);
   }
 }

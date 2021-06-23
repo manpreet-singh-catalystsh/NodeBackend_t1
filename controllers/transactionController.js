@@ -1,32 +1,30 @@
 const transactionServices = require("../services/transactionServices");
 const userServices = require("../services/userServices");
 const activityServices = require("../services/activityServices");
+const Response = require("../middleware/response");
+const Messages = require("../messages");
 
 async function showUserTransactions(req, res) {
   try {
-    res.send(
-      await transactionServices.showUserTransactions(req.params.userName)
-    );
+    res.send(new Response( Messages.success.code,Messages.success.description,  await transactionServices.showUserTransactions(req.params.userName)));
   } catch (e) {
-    res.send("409");
+    res.send(new Response( Messages.fail.code,Messages.fail.description,""));
   }
 }
 
 async function showAdminTransactions(req, res) {
   try {
-    res.send(
-      await transactionServices.showUserTransactions(req.params.userName)
-    );
+    res.send(new Response( Messages.success.code,Messages.success.description,  await transactionServices.showUserTransactions(req.params.userName)));
   } catch (e) {
-    res.send("409");
+    res.send(new Response( Messages.fail.code,Messages.fail.description,""));
   }
 }
 
 async function showAll(req, res) {
   try {
-    res.send(await transactionServices.showAll());
+    res.send(new Response( Messages.success.code,Messages.success.description,  await transactionServices.showAll()));
   } catch (e) {
-    res.send("409");
+    res.send(new Response( Messages.fail.code,Messages.fail.description,""));
   }
 }
 
@@ -43,8 +41,9 @@ async function superAdminTransaction(req, res) {
       purpose
     );
     console.log(result);
-    res.send(result);
+    res.send(new Response( Messages.success.code,Messages.success.description,  result));
   } catch (e) {
+    res.send(new Response( Messages.fail.code,Messages.fail.description,""));
     console.log("some error occured!!!", e);
   }
 }
@@ -73,10 +72,9 @@ async function userTransaction(req, res) {
       purpose
     );
     console.log(result);
-    res.send(result);
+    res.send(new Response( Messages.success.code,Messages.success.description,  result));
   } catch (e) {
-    console.log("some error occured!!!", e);
-    res.send("409");
+    res.send(new Response( Messages.fail.code,Messages.fail.description,""));
   }
 }
 

@@ -5,7 +5,7 @@ async function getType(user) {
 }
 
 async function getAdminCollection(user) {
-  return await User.findOne({ userName: user });
+  return await User.findOne({ userName: user }).select("adminMoney");
 }
 
 async function getBalance(user) {
@@ -21,9 +21,8 @@ async function userExists(user) {
 }
 
 async function verifyPassword(user, password) {
-  return (await User.findOne({ userName: user, password: password }))
-    ? true
-    : false;
+  usr = await User.findOne({ userName: user });
+  return await User.comparePassword(password,usr.password);
 }
 
 async function updateChecks(user, privicy, promotion) {
@@ -42,9 +41,11 @@ async function createUser(
   admin,
   superAdmin
 ) {
+  
+
   const user = new User({
     userName: userName,
-    password: password,
+    password: await User.hashPassword(password),
     privicyCheck: privicyCheck === "true",
     promotionCheck: promotionCheck === "true",
     admin: admin === "true",
