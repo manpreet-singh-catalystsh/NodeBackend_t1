@@ -17,8 +17,8 @@ function route(app) {
 
   try {
     app.use("/users", users);
-    app.use("/activities", activities);
-    app.use("/transactions", transactions);
+    app.use("/activities",auth ,activities);
+    app.use("/transactions", auth,transactions);
     app.use("/categories", categories);
   } catch (e) {
     console.log(e);
