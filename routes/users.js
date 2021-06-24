@@ -5,6 +5,7 @@ const userController = require("../controllers/userController");
 router.use(express.json());
 
 router.get("/userType/:userName", (req, res) => {
+    
     userController.getType(req,res); 
 });
 

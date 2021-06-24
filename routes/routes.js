@@ -2,6 +2,11 @@ const users = require("./users");
 const activities = require("./activities");
 const categories = require("./categories");
 const transactions = require("./transactions");
+const auth = require("../middleware/auth");
+
+
+
+
 
 function route(app) {
   i = 0;
